@@ -25,6 +25,7 @@ Rules for callers:
 import asyncio
 import contextlib
 import logging
+import time
 import uuid
 from pathlib import Path
 from typing import List, Literal, Optional
@@ -35,13 +36,13 @@ from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
-from . import config, store
+from . import config, store, trace
 from .exchange import ExchangeError, FakeExchange, TestnetExchange
 from .pipeline import Pipeline
 from .signals import crossover_signal, honest_test
 from .sources import listen_live, replay_file
 
-API_VERSION = "1.0.0"
+API_VERSION = "1.1.0"
 log = logging.getLogger("cte.api")
 
 
@@ -221,6 +222,27 @@ def create_app(mode=None, db_path=None, exchange=None, start_background=True, re
     )
     app.add_middleware(CORSMiddleware, allow_origins=config.CORS_ORIGINS, allow_methods=["*"], allow_headers=["*"])
 
+    # ---- the engine's own call log (see engine/trace.py) ----
+    @app.middleware("http")
+    async def _trace_requests(request: Request, call_next):
+        """Write one line per API call: method, path, status, time taken.
+
+        Static files (the dashboard itself) and the log reader /trace are skipped,
+        so the log shows only real API calls. The key is printed as ****.
+        """
+        t0 = time.perf_counter()
+        response = await call_next(request)
+        path = request.url.path
+        quiet = path == "/trace" or path.startswith("/docs") or path == "/openapi.json" or "." in path.rsplit("/", 1)[-1] or path == "/"
+        if not quiet:
+            q = ("?" + request.url.query) if request.url.query else ""
+            key = "  key=****" if request.headers.get("x-api-key") else ""
+            ms = round((time.perf_counter() - t0) * 1000)
+            trace.log("in", f"{request.method:<6} {path}{q}{key}  -> {response.status_code}  {ms} ms")
+        # Lets a page on https://ansh-bhargav.web.app talk to an engine on this laptop (localhost).
+        response.headers["Access-Control-Allow-Private-Network"] = "true"
+        return response
+
     @app.exception_handler(ApiError)
     async def _api_error(request: Request, exc: ApiError):
         return JSONResponse(status_code=exc.status, content={"error": {"code": exc.code, "message": exc.message}})
@@ -243,6 +265,11 @@ def create_app(mode=None, db_path=None, exchange=None, start_background=True, re
         return state["pipe"]
 
     # ---- reading ----
+
+    @app.get("/trace", tags=["status"], summary="The engine's own call log: newest lines after `after`")
+    async def get_trace(after: int = 0):
+        """Lines like a terminal: every API call in, every Binance call out. Secrets are masked."""
+        return trace.since(after)
 
     @app.get("/health", tags=["status"], summary="Is the engine running, and in which mode?")
     async def health():

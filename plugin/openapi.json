@@ -3,9 +3,51 @@
   "info": {
     "title": "Centralized Trading Engine",
     "description": "A gateway to the Binance Spot Testnet (practice market, toy money). It listens to live trades, cleans them, stores them, gives BUY/SELL/HOLD advice from two moving averages, and forwards signed orders.\n\n**Reading is open. Placing or cancelling an order needs `X-API-Key`.**\n\nEvery error has the shape `{\"error\": {\"code\", \"message\"}}`. Guide for plugin builders: `plugin/INTEGRATE_IN_15_MIN.md` in the repository.",
-    "version": "1.0.0"
+    "version": "1.1.0"
   },
   "paths": {
+    "/trace": {
+      "get": {
+        "tags": [
+          "status"
+        ],
+        "summary": "The engine's own call log: newest lines after `after`",
+        "description": "Lines like a terminal: every API call in, every Binance call out. Secrets are masked.",
+        "operationId": "get_trace_trace_get",
+        "parameters": [
+          {
+            "name": "after",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "title": "After"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/health": {
       "get": {
         "tags": [

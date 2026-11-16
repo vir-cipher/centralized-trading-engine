@@ -26,6 +26,8 @@ import hmac
 import time
 from urllib.parse import urlencode
 
+from . import trace
+
 
 def sign(query_string, secret):
     """Make the HMAC-SHA256 seal for one request.
@@ -77,8 +79,11 @@ class TestnetExchange:
 
     def _signed(self, method, path, params):
         query = signed_query(params, self.secret, self.recv_window)
+        text, sig = query.rsplit("&signature=", 1)
+        trace.log("out", f"  -> Binance {method} {path}  {text}  signature={trace.short_signature(sig)}")
         resp = self.http.request(method, path + "?" + query)
         data = resp.json()
+        trace.log("out", f"  <- Binance {resp.status_code}  {str(data.get('status', data.get('msg', '')))[:60]}")
         if resp.status_code != 200:
             raise ExchangeError(data.get("code", resp.status_code), data.get("msg", "Binance error"))
         return data
@@ -134,6 +139,7 @@ class FakeExchange:
         sign_ = 1 if side == "BUY" else -1
         self.balance["USDT"] -= sign_ * cost
         self.balance["BTC"] += sign_ * qty
+        trace.log("out", f"  -> pretend exchange: {side} {qty} {symbol} MARKET filled at {last} (SIMULATED, no internet)")
         return {"status": "FILLED", "exchange_id": oid, "filled_price": last, "note": "SIMULATED"}
 
     def cancel_order(self, client_id, symbol):

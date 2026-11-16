@@ -25,7 +25,7 @@
     <p class="sub">Binance Spot Testnet · practice market, toy money · advice only, a human places every order</p>
   </div>
   <div class="right">
-    <span id="badge" class="badge" title="Where the prices come from">…</span>
+    <button id="badge" class="badge" type="button" title="Where the prices come from. Click to see how the code works.">…</button>
     <button id="theme" type="button" aria-pressed="false">Dark mode</button>
   </div>
 </header>
@@ -40,11 +40,29 @@
     <p class="legend">Thin line: price · dashed: 5-minute average · thick: 15-minute average · ▲ BUY / ▼ SELL marks where they cross</p>
   </section>
 
+  <section class="card wide" aria-labelledby="trace-h">
+    <div class="row">
+      <h2 id="trace-h">Call trace</h2>
+      <div class="right">
+        <button id="view-page" type="button" aria-pressed="true">This page's calls</button>
+        <button id="view-engine" type="button" aria-pressed="false">Engine log</button>
+        <button id="trace-pause" type="button" aria-pressed="false">Pause</button>
+        <button id="trace-clear" type="button">Clear</button>
+        <button id="trace-copy" type="button">Copy last as curl</button>
+      </div>
+    </div>
+    <div id="trace" class="term" role="log" aria-label="Every API call this page makes, shown as a curl command and its answer"></div>
+    <div id="engine-log" class="term" role="log" aria-label="The engine's own log: every call it received and every call it made to Binance" hidden></div>
+    <p><button id="connect" type="button" hidden>Use my laptop engine (localhost:8000)</button></p>
+    <p class="legend"><b>This page's calls</b>: each <b>$</b> line is the same call you can paste into a terminal (or Postman). <b>&lt;-</b> is the answer: status code, time, first part of the reply. The plugin key is shown as ****. Order lines are <span class="order-swatch">gold</span>. <b>Engine log</b>: what the engine itself received, and every signed call it sent to Binance (signature shortened).</p>
+  </section>
+
   <section class="card" aria-labelledby="sig-h">
     <h2 id="sig-h">Advice</h2>
     <p id="advice" class="advice">–</p>
     <p id="reason" class="muted">–</p>
     <p id="honest" class="muted small">–</p>
+    <button id="follow-advice" type="button" disabled>Follow advice</button>
   </section>
 
   <section class="card" aria-labelledby="ord-h">
@@ -60,6 +78,29 @@
     <p id="order-msg" class="muted small" aria-live="polite"></p>
   </section>
 
+  <section class="card" aria-labelledby="pf-h">
+    <h2 id="pf-h">Portfolio: gain or loss</h2>
+    <p id="pf-source" class="muted small">–</p>
+    <table><tbody>
+      <tr><th>BTC bought (net)</th><td id="pf-btc">–</td></tr>
+      <tr><th>Cash</th><td id="pf-cash">–</td></tr>
+      <tr><th>That BTC is worth now</th><td id="pf-value">–</td></tr>
+      <tr><th>Gain / loss</th><td id="pf-pnl" class="pnl">–</td></tr>
+    </tbody></table>
+    <p class="legend">Worked out from the filled orders only: value now minus cash spent. Toy money, advice only.</p>
+  </section>
+
+  <section class="card" aria-labelledby="inv-h">
+    <h2 id="inv-h">Inventory</h2>
+    <p id="inv-counts" class="muted small">–</p>
+    <div class="scroll"><table><thead><tr><th>Asset</th><th>Free</th><th>Locked in open orders</th></tr></thead><tbody id="inv-balances"></tbody></table></div>
+  </section>
+
+  <section class="card" aria-labelledby="src-h">
+    <h2 id="src-h">Where the data comes from</h2>
+    <p id="source-note">–</p>
+  </section>
+
   <section class="card" aria-labelledby="tr-h">
     <h2 id="tr-h">Recent deals</h2>
     <div class="scroll"><table><thead><tr><th>Time (UTC)</th><th>Price</th><th>Qty</th></tr></thead><tbody id="trades"></tbody></table></div>
@@ -67,10 +108,58 @@
 
   <section class="card" aria-labelledby="oh-h">
     <h2 id="oh-h">Order history</h2>
-    <div class="scroll"><table><thead><tr><th>#</th><th>Side</th><th>Type</th><th>Qty</th><th>Status</th><th></th></tr></thead><tbody id="orders"></tbody></table></div>
+    <div class="scroll"><table><thead><tr><th>#</th><th>Side</th><th>Type</th><th>Qty</th><th>Price</th><th>Cost</th><th>Status</th><th>Where</th><th></th></tr></thead><tbody id="orders"></tbody></table></div>
   </section>
 </main>
 
+<dialog id="codemap" aria-labelledby="cm-h">
+  <div class="row"><h2 id="cm-h">How the code works</h2><button type="button" id="cm-close">Close ✕</button></div>
+  <p class="muted small">One price travels left to right, then down to the screen. Click any box to open that file on GitHub.</p>
+  <div class="scroll"><svg class="map" viewBox="0 0 700 340" role="img" aria-label="How the engine's files pass a price from Binance to the dashboard">
+<defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="currentColor"/></marker></defs>
+<g class="arrows">
+<line x1="140" y1="51" x2="168" y2="51"/><line x1="290" y1="51" x2="318" y2="51"/><line x1="460" y1="51" x2="488" y2="51"/>
+<line x1="550" y1="80" x2="460" y2="168"/><line x1="520" y1="80" x2="320" y2="168"/>
+<line x1="390" y1="197" x2="342" y2="197"/><line x1="198" y1="197" x2="152" y2="197"/>
+<line x1="270" y1="226" x2="270" y2="258"/><line x1="340" y1="215" x2="538" y2="275"/>
+<line x1="615" y1="258" x2="615" y2="228" stroke-dasharray="5 4"/>
+</g>
+<g class="ext"><rect x="10" y="22" width="130" height="58" rx="8"/><text x="75.0" y="46" class="f">Binance / replay</text><text x="75.0" y="66">prices arrive</text></g>
+<a href="https://github.com/vir-cipher/centralized-trading-engine/blob/main/engine/sources.py" target="_blank" rel="noopener"><g class="mod"><rect x="170" y="22" width="120" height="58" rx="8"/><text x="230.0" y="46" class="f">sources.py</text><text x="230.0" y="66">① listen</text></g></a>
+<a href="https://github.com/vir-cipher/centralized-trading-engine/blob/main/engine/clean.py" target="_blank" rel="noopener"><g class="mod"><rect x="320" y="22" width="140" height="58" rx="8"/><text x="390.0" y="46" class="f">clean.py</text><text x="390.0" y="66">② tidy each note</text></g></a>
+<a href="https://github.com/vir-cipher/centralized-trading-engine/blob/main/engine/store.py" target="_blank" rel="noopener"><g class="mod"><rect x="490" y="22" width="120" height="58" rx="8"/><text x="550.0" y="46" class="f">store.py</text><text x="550.0" y="66">③ save (SQLite)</text></g></a>
+<a href="https://github.com/vir-cipher/centralized-trading-engine/blob/main/engine/signals.py" target="_blank" rel="noopener"><g class="mod"><rect x="390" y="168" width="120" height="58" rx="8"/><text x="450.0" y="192" class="f">signals.py</text><text x="450.0" y="212">④ BUY/SELL advice</text></g></a>
+<a href="https://github.com/vir-cipher/centralized-trading-engine/blob/main/engine/api.py" target="_blank" rel="noopener"><g class="mod"><rect x="200" y="168" width="140" height="58" rx="8"/><text x="270.0" y="192" class="f">api.py</text><text x="270.0" y="212">⑤ the front desk</text></g></a>
+<a href="https://github.com/vir-cipher/centralized-trading-engine/blob/main/dashboard/app.js" target="_blank" rel="noopener"><g class="mod"><rect x="10" y="168" width="140" height="58" rx="8"/><text x="80.0" y="192" class="f">dashboard/</text><text x="80.0" y="212">⑥ the screen</text></g></a>
+<a href="https://github.com/vir-cipher/centralized-trading-engine/blob/main/engine/trace.py" target="_blank" rel="noopener"><g class="mod"><rect x="200" y="258" width="140" height="58" rx="8"/><text x="270.0" y="282" class="f">trace.py</text><text x="270.0" y="302">black-screen log</text></g></a>
+<a href="https://github.com/vir-cipher/centralized-trading-engine/blob/main/engine/exchange.py" target="_blank" rel="noopener"><g class="mod"><rect x="540" y="258" width="150" height="58" rx="8"/><text x="615.0" y="282" class="f">exchange.py</text><text x="615.0" y="302">⑦ send the order</text></g></a>
+<a href="https://github.com/vir-cipher/centralized-trading-engine/blob/main/run.py" target="_blank" rel="noopener"><g class="mod"><rect x="10" y="258" width="140" height="58" rx="8"/><text x="80.0" y="282" class="f">run.py + config.py</text><text x="80.0" y="302">start + settings</text></g></a>
+<g class="ext"><rect x="560" y="168" width="130" height="58" rx="8"/><text x="625" y="192" class="f">Binance Testnet</text><text x="625" y="212">gets the order</text></g>
+</svg></div>
+  <h2>Every file in plain words</h2>
+  <div class="scroll"><table><thead><tr><th>File</th><th>What it does</th><th></th></tr></thead><tbody>
+<tr><td><code>run.py</code></td><td>The start button. One command starts every part of the engine.</td><td><a href="https://github.com/vir-cipher/centralized-trading-engine/blob/main/run.py" target="_blank" rel="noopener">open ↗</a></td></tr>
+<tr><td><code>engine/config.py</code></td><td>The settings card: which coin, which mode, where the database file lives. Keys come from .env, never from the code.</td><td><a href="https://github.com/vir-cipher/centralized-trading-engine/blob/main/engine/config.py" target="_blank" rel="noopener">open ↗</a></td></tr>
+<tr><td><code>engine/sources.py</code></td><td>The ears. Listens to Binance Testnet (LIVE) or plays a recorded file (REPLAY) and drops each message on a conveyor belt.</td><td><a href="https://github.com/vir-cipher/centralized-trading-engine/blob/main/engine/sources.py" target="_blank" rel="noopener">open ↗</a></td></tr>
+<tr><td><code>engine/clean.py</code></td><td>The cleaner. Turns Binance's short, messy notes ("p", "q") into one tidy row with proper numbers and time.</td><td><a href="https://github.com/vir-cipher/centralized-trading-engine/blob/main/engine/clean.py" target="_blank" rel="noopener">open ↗</a></td></tr>
+<tr><td><code>engine/pipeline.py</code></td><td>The clerk at the end of the belt: take a message, clean it, store it, repeat forever.</td><td><a href="https://github.com/vir-cipher/centralized-trading-engine/blob/main/engine/pipeline.py" target="_blank" rel="noopener">open ↗</a></td></tr>
+<tr><td><code>engine/store.py</code></td><td>The notebook. Saves every clean deal and every order in one SQLite file on the laptop.</td><td><a href="https://github.com/vir-cipher/centralized-trading-engine/blob/main/engine/store.py" target="_blank" rel="noopener">open ↗</a></td></tr>
+<tr><td><code>engine/signals.py</code></td><td>The advisor. Compares a short average with a long average and says BUY, SELL or HOLD. A human still decides.</td><td><a href="https://github.com/vir-cipher/centralized-trading-engine/blob/main/engine/signals.py" target="_blank" rel="noopener">open ↗</a></td></tr>
+<tr><td><code>engine/exchange.py</code></td><td>The post office. Signs an order with the secret key (HMAC) and sends it to Binance Testnet, or to a pretend exchange in demo mode.</td><td><a href="https://github.com/vir-cipher/centralized-trading-engine/blob/main/engine/exchange.py" target="_blank" rel="noopener">open ↗</a></td></tr>
+<tr><td><code>engine/api.py</code></td><td>The front desk. A FastAPI menu (/prices, /signal, /orders, /trace …) that the dashboard and other teams call.</td><td><a href="https://github.com/vir-cipher/centralized-trading-engine/blob/main/engine/api.py" target="_blank" rel="noopener">open ↗</a></td></tr>
+<tr><td><code>engine/trace.py</code></td><td>The black screen. Writes one line for every call in and out, so you can watch the engine work.</td><td><a href="https://github.com/vir-cipher/centralized-trading-engine/blob/main/engine/trace.py" target="_blank" rel="noopener">open ↗</a></td></tr>
+<tr><td><code>dashboard/index.html</code></td><td>The page layout: chart, advice, order form, tables, call trace.</td><td><a href="https://github.com/vir-cipher/centralized-trading-engine/blob/main/dashboard/index.html" target="_blank" rel="noopener">open ↗</a></td></tr>
+<tr><td><code>dashboard/app.js</code></td><td>The page's brain. Asks the API every few seconds and draws the answers; shows each call as a curl line.</td><td><a href="https://github.com/vir-cipher/centralized-trading-engine/blob/main/dashboard/app.js" target="_blank" rel="noopener">open ↗</a></td></tr>
+<tr><td><code>dashboard/style.css</code></td><td>The page's look: colours, light and dark mode, the black terminal box.</td><td><a href="https://github.com/vir-cipher/centralized-trading-engine/blob/main/dashboard/style.css" target="_blank" rel="noopener">open ↗</a></td></tr>
+<tr><td><code>tools/make_replay_file.py</code></td><td>Makes the pretend (MOCK) price recording used for demos and tests, so nothing needs the internet.</td><td><a href="https://github.com/vir-cipher/centralized-trading-engine/blob/main/tools/make_replay_file.py" target="_blank" rel="noopener">open ↗</a></td></tr>
+<tr><td><code>tools/make_snapshot.py</code></td><td>Freezes the dashboard's answers into snapshot.json so the website works without a running engine.</td><td><a href="https://github.com/vir-cipher/centralized-trading-engine/blob/main/tools/make_snapshot.py" target="_blank" rel="noopener">open ↗</a></td></tr>
+<tr><td><code>tests/</code></td><td>Checks that each part still works. Run: python -m pytest -q</td><td><a href="https://github.com/vir-cipher/centralized-trading-engine/tree/main/tests" target="_blank" rel="noopener">open ↗</a></td></tr>
+<tr><td><code>plugin/openapi.json</code></td><td>The printed menu other teams build against (the API contract).</td><td><a href="https://github.com/vir-cipher/centralized-trading-engine/blob/main/plugin/openapi.json" target="_blank" rel="noopener">open ↗</a></td></tr>
+<tr><td><code>docs/00_START_HERE.md</code></td><td>Read-me-first guide in plain words.</td><td><a href="https://github.com/vir-cipher/centralized-trading-engine/blob/main/docs/00_START_HERE.md" target="_blank" rel="noopener">open ↗</a></td></tr>
+<tr><td><code>docs/BACKLOG.md</code></td><td>Ideas for later, like the full portfolio ledger.</td><td><a href="https://github.com/vir-cipher/centralized-trading-engine/blob/main/docs/BACKLOG.md" target="_blank" rel="noopener">open ↗</a></td></tr>
+  </tbody></table></div>
+</dialog>
+<div id="toasts" class="toasts" aria-live="polite"></div>
 <footer>API menu: <a id="docs-link" href="/docs">/docs</a> · data in REPLAY and SNAPSHOT modes is MOCK</footer>
 <script src="vendor/chart.umd.js"></script>
 <script src="app.js"></script>

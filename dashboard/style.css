@@ -24,3 +24,29 @@ form{display:grid;gap:8px}label{display:grid;gap:3px;font-size:.92rem}
 th,td{text-align:left;padding:5px 6px;border-bottom:1px solid var(--line)}th{color:var(--muted);font-weight:600}
 footer{padding:12px max(16px,env(safe-area-inset-left,0px));color:var(--muted);font-size:.88rem}
 a{color:var(--acc)}
+
+/* Call trace: a black terminal box in both themes (on purpose). */
+.term{background:#0b0f10;color:#d7e3e8;font:13px/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;height:260px;overflow:auto;padding:10px 12px;border-radius:8px;border:1px solid #263238;white-space:pre-wrap;word-break:break-all}
+.term .t-cmd{color:#e8f1f4}.term .t-ok{color:#8fe3a1}.term .t-err{color:#ff9a8a}.term .t-meta{color:#7f939b}
+button[aria-pressed="true"]{border-color:var(--acc);font-weight:600}
+.term .t-order{color:#ffd166;font-weight:700}
+.order-swatch{background:#0b0f10;color:#ffd166;font-weight:700;padding:0 4px;border-radius:3px}
+.toasts{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:max(16px,env(safe-area-inset-bottom,0px));display:grid;gap:8px;z-index:20;max-width:min(420px,calc(100vw - 32px))}
+.toast{background:#0b3d2e;color:#e9fff4;border:2px solid #4fd18b;border-radius:10px;padding:10px 14px;font-weight:600;box-shadow:0 6px 20px rgba(0,0,0,.25);transition:opacity .6s}
+.toast.gone{opacity:0}
+.pnl{font-weight:800}.pnl.up{color:#1b7f4b}.pnl.down{color:var(--warn)}
+#follow-advice{margin-top:6px}
+
+/* Code map: opens when you click the mode badge. */
+#badge{cursor:pointer}
+dialog#codemap{width:min(900px,96vw);max-height:90vh;overflow:auto;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:14px}
+dialog#codemap::backdrop{background:rgba(0,0,0,.45)}
+.map{width:100%;min-width:620px;height:auto;color:var(--muted)}
+.map rect{fill:var(--bg);stroke:var(--acc);stroke-width:1.5}
+.map .ext rect{stroke:var(--muted);stroke-dasharray:5 4}
+.map text{fill:var(--ink);font-size:12px;text-anchor:middle}
+.map text.f{font-weight:700;font-family:ui-monospace,Consolas,monospace}
+.map .note{fill:var(--muted);text-anchor:start;font-size:11px}
+.map .arrows line{stroke:currentColor;stroke-width:1.5;marker-end:url(#ah)}
+#codemap td:last-child{white-space:nowrap}
+.map a:hover rect,.map a:focus rect{fill:var(--card);stroke-width:3}
