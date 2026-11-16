@@ -1,0 +1,78 @@
+<!doctype html>
+<!--
+  The dashboard (the VIZ part).
+
+  In plain words:
+    This page asks our own API for numbers every few seconds and draws them:
+    the price line with its two averages, the latest advice, recent deals and
+    our orders. Every BUY or SELL is written in words with an arrow, never shown
+    by colour alone, so it also works for colour-blind readers.
+
+    If the API is not there (for example on a static website), the page reads
+    snapshot.json instead and says so with a SNAPSHOT badge.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Centralized Trading Engine</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <div>
+    <h1>Centralized Trading Engine</h1>
+    <p class="sub">Binance Spot Testnet · practice market, toy money · advice only, a human places every order</p>
+  </div>
+  <div class="right">
+    <span id="badge" class="badge" title="Where the prices come from">…</span>
+    <button id="theme" type="button" aria-pressed="false">Dark mode</button>
+  </div>
+</header>
+
+<main>
+  <section class="card wide" aria-labelledby="chart-h">
+    <div class="row">
+      <h2 id="chart-h">BTCUSDT · one-minute closes</h2>
+      <span id="price" class="price" aria-live="polite">–</span>
+    </div>
+    <div class="chart-box"><canvas id="chart" aria-label="Price line with 5-minute and 15-minute averages" role="img"></canvas></div>
+    <p class="legend">Thin line: price · dashed: 5-minute average · thick: 15-minute average · ▲ BUY / ▼ SELL marks where they cross</p>
+  </section>
+
+  <section class="card" aria-labelledby="sig-h">
+    <h2 id="sig-h">Advice</h2>
+    <p id="advice" class="advice">–</p>
+    <p id="reason" class="muted">–</p>
+    <p id="honest" class="muted small">–</p>
+  </section>
+
+  <section class="card" aria-labelledby="ord-h">
+    <h2 id="ord-h">Place an order</h2>
+    <form id="order">
+      <label>Side <select name="side"><option>BUY</option><option>SELL</option></select></label>
+      <label>Type <select name="type"><option>MARKET</option><option>LIMIT</option></select></label>
+      <label>Quantity <input name="qty" type="number" step="0.0001" min="0.0001" value="0.001"></label>
+      <label>Limit price <input name="price" type="number" step="0.01" placeholder="LIMIT only"></label>
+      <label>Plugin key <input name="key" type="password" value="demo-plugin-key" autocomplete="off"></label>
+      <button type="submit">Send order</button>
+    </form>
+    <p id="order-msg" class="muted small" aria-live="polite"></p>
+  </section>
+
+  <section class="card" aria-labelledby="tr-h">
+    <h2 id="tr-h">Recent deals</h2>
+    <div class="scroll"><table><thead><tr><th>Time (UTC)</th><th>Price</th><th>Qty</th></tr></thead><tbody id="trades"></tbody></table></div>
+  </section>
+
+  <section class="card" aria-labelledby="oh-h">
+    <h2 id="oh-h">Order history</h2>
+    <div class="scroll"><table><thead><tr><th>#</th><th>Side</th><th>Type</th><th>Qty</th><th>Status</th><th></th></tr></thead><tbody id="orders"></tbody></table></div>
+  </section>
+</main>
+
+<footer>API menu: <a href="/docs">/docs</a> · data in REPLAY and SNAPSHOT modes is MOCK</footer>
+<script src="vendor/chart.umd.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

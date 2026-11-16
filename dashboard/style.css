@@ -1,0 +1,26 @@
+/* Dashboard look. Light and dark both keep strong contrast; meaning never rides on colour alone. */
+:root{--bg:#f5f7f6;--card:#fff;--ink:#14232b;--muted:#4c5d65;--line:#d4dde0;--acc:#0b5d66;--warn:#8a2d0a}
+[data-theme="dark"]{--bg:#121619;--card:#1b2126;--ink:#e9eef0;--muted:#a7b4ba;--line:#30393f;--acc:#6cc8cf;--warn:#f0a07a}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:16px max(16px,env(safe-area-inset-left,0px));border-bottom:1px solid var(--line)}
+h1{font-size:1.4rem;margin:0}h2{font-size:1.05rem;margin:0 0 8px}
+.sub,.muted{color:var(--muted)}.sub{margin:2px 0 0;font-size:.92rem}.small{font-size:.88rem}
+.right{display:flex;gap:10px;align-items:center}
+.badge{font-weight:700;letter-spacing:.06em;border:2px solid var(--acc);color:var(--acc);border-radius:6px;padding:3px 10px}
+.badge.replay,.badge.snapshot{border-style:dashed}
+button,select,input{font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:6px;padding:6px 10px}
+button{cursor:pointer}button[type=submit]{background:var(--acc);color:var(--bg);border-color:var(--acc);font-weight:600}
+main{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;padding:14px max(16px,env(safe-area-inset-left,0px))}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px;min-width:0}
+.wide{grid-column:1/-1}
+.row{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+.price{font-size:1.5rem;font-weight:700}
+.chart-box{position:relative;height:320px}
+.legend{font-size:.88rem;color:var(--muted);margin:6px 0 0}
+.advice{font-size:2rem;font-weight:800;margin:4px 0}
+form{display:grid;gap:8px}label{display:grid;gap:3px;font-size:.92rem}
+.scroll{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:.92rem}
+th,td{text-align:left;padding:5px 6px;border-bottom:1px solid var(--line)}th{color:var(--muted);font-weight:600}
+footer{padding:12px max(16px,env(safe-area-inset-left,0px));color:var(--muted);font-size:.88rem}
+a{color:var(--acc)}
