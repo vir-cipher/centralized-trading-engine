@@ -73,7 +73,7 @@ async def listen_live(queue, base_url, symbols, stop):
             pause = min(pause * 2, 30)
 
 
-async def replay_file(queue, path, speed, stop, loop_forever=True):
+async def replay_file(queue, path, speed, stop, loop_forever=True, after_ts=None):
     """Play a recorded .jsonl file onto the queue, keeping the original gaps / speed.
 
     Each line of the file is one Binance message, exactly as it was received.
@@ -82,6 +82,10 @@ async def replay_file(queue, path, speed, stop, loop_forever=True):
     When the file ends we play it again, but shifted later in time and with
     new trade numbers, so the chart keeps moving instead of Clean throwing
     every repeated deal in the bin.
+
+    after_ts: the time of the newest deal already in the ledger. After a restart
+    we skip ahead to the first lap that starts later, so the old deals are not
+    replayed as repeats (which would freeze the chart).
     """
     messages = [json.loads(line) for line in open(path, encoding="utf-8") if line.strip()]
     times = [m.get("data", m).get("T") or m.get("data", m).get("E") for m in messages]
@@ -89,6 +93,8 @@ async def replay_file(queue, path, speed, stop, loop_forever=True):
     span_ms = (max(times) - min(times)) + 60_000      # length of the recording plus one quiet minute
     id_step = (max(ids) - min(ids) + 1) if ids else 0
     lap = 0
+    if after_ts is not None and after_ts >= min(times):
+        lap = int((after_ts - min(times)) // span_ms) + 1
     while not stop.is_set():
         last_ts = None
         for msg in messages:

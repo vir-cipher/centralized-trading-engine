@@ -24,6 +24,7 @@ Rules for callers:
 
 import asyncio
 import contextlib
+import inspect
 import logging
 import time
 import uuid
@@ -144,7 +145,7 @@ class NoKeysExchange:
 
 # ---------- AUTO mode: try LIVE, fall back to REPLAY by itself ----------
 
-async def auto_source(pipe, replay_path, stop, tasks, wait_s=15):
+async def auto_source(pipe, replay_path, stop, tasks, wait_s=15, after_ts=None):
     """Demo-night safety net.
 
     In plain words:
@@ -163,7 +164,7 @@ async def auto_source(pipe, replay_path, stop, tasks, wait_s=15):
     log.warning("AUTO: no live data in %s s, switching to REPLAY", wait_s)
     live.cancel()
     pipe.mode = "REPLAY"
-    await replay_file(pipe.queue, replay_path, config.REPLAY_SPEED, stop)
+    await replay_file(pipe.queue, replay_path, config.REPLAY_SPEED, stop, after_ts=after_ts)
 
 
 # ---------- the app ----------
@@ -192,12 +193,14 @@ def create_app(mode=None, db_path=None, exchange=None, start_background=True, re
         stop, tasks = asyncio.Event(), []
         if start_background:
             replay_path = replay_file_path or config.REPLAY_FILE
+            newest = store.last_trade(db, config.SYMBOLS[0])     # resume the replay after what is already stored
+            after_ts = newest["ts"] if newest else None
             if mode == "live":
                 tasks.append(asyncio.create_task(listen_live(pipe.queue, config.STREAM_URL, config.SYMBOLS, stop)))
             elif mode == "auto":
-                tasks.append(asyncio.create_task(auto_source(pipe, replay_path, stop, tasks)))
+                tasks.append(asyncio.create_task(auto_source(pipe, replay_path, stop, tasks, after_ts=after_ts)))
             else:
-                tasks.append(asyncio.create_task(replay_file(pipe.queue, replay_path, config.REPLAY_SPEED, stop)))
+                tasks.append(asyncio.create_task(replay_file(pipe.queue, replay_path, config.REPLAY_SPEED, stop, after_ts=after_ts)))
             tasks.append(asyncio.create_task(pipe.run(stop)))
         yield
         # ---- shut-down: stop the listener and the clerk, close the file ----
@@ -220,7 +223,10 @@ def create_app(mode=None, db_path=None, exchange=None, start_background=True, re
             "Guide for plugin builders: `plugin/INTEGRATE_IN_15_MIN.md` in the repository."
         ),
     )
-    app.add_middleware(CORSMiddleware, allow_origins=config.CORS_ORIGINS, allow_methods=["*"], allow_headers=["*"])
+    cors = dict(allow_origins=config.CORS_ORIGINS, allow_methods=["*"], allow_headers=["*"])
+    if "allow_private_network" in inspect.signature(CORSMiddleware.__init__).parameters:
+        cors["allow_private_network"] = True   # newer Starlette: lets the https dashboard reach this laptop
+    app.add_middleware(CORSMiddleware, **cors)
 
     # ---- the engine's own call log (see engine/trace.py) ----
     @app.middleware("http")

@@ -25,3 +25,20 @@ def test_replay_second_lap_has_new_ids_and_later_times(tmp_path):
     ids = [m["data"]["t"] for m, _ in got]
     times = [m["data"]["T"] for m, _ in got]
     assert ids == [1, 2, 3, 4] and times[2] > times[1] and all(src == "REPLAY" for _, src in got)
+
+
+def test_replay_after_restart_skips_deals_already_stored(tmp_path):
+    """After a restart, the replay jumps past the newest stored deal, so nothing is a repeat."""
+    f = tmp_path / "r.jsonl"
+    f.write_text("\n".join(json.dumps({"stream": "btcusdt@trade", "data": {"e": "trade", "s": "BTCUSDT", "t": i, "p": "1", "q": "1", "T": 1000 * i}}) for i in (1, 2)) + "\n")
+
+    async def go():
+        q, stop = asyncio.Queue(), asyncio.Event()
+        task = asyncio.create_task(replay_file(q, f, speed=1e9, stop=stop, after_ts=2000))
+        got = [await q.get() for _ in range(2)]
+        stop.set(); task.cancel()
+        return got
+
+    got = asyncio.run(go())
+    assert all(m["data"]["T"] > 2000 for m, _ in got)
+    assert [m["data"]["t"] for m, _ in got] == [3, 4]
