@@ -1,0 +1,11 @@
+<!doctype html>
+<!-- Smallest useful browser plugin. Open this file in a browser while the engine runs on localhost:8000. -->
+<meta charset="utf-8"><title>CTE plugin example</title>
+<p id="out">loading…</p>
+<script>
+const BASE = "http://localhost:8000";
+fetch(BASE + "/prices/BTCUSDT").then(r => r.json()).then(p =>
+  fetch(BASE + "/signals/BTCUSDT").then(r => r.json()).then(s => {
+    document.getElementById("out").textContent = `BTCUSDT ${p.price} (${p.source}) · advice ${s.advice}`;
+  })).catch(e => { document.getElementById("out").textContent = "engine not reachable: " + e; });
+</script>
