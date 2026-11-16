@@ -1,0 +1,18 @@
+# Runs every test on every push. No internet is needed by any test.
+name: tests
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r requirements.txt
+      - run: python -m pytest -q
+      - name: The published API contract must match the code
+        run: |
+          cp plugin/openapi.json /tmp/committed.json
+          python run.py --openapi
+          diff -q /tmp/committed.json plugin/openapi.json
