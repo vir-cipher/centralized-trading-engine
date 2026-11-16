@@ -50,3 +50,16 @@ dialog#codemap::backdrop{background:rgba(0,0,0,.45)}
 .map .arrows line{stroke:currentColor;stroke-width:1.5;marker-end:url(#ah)}
 #codemap td:last-child{white-space:nowrap}
 .map a:hover rect,.map a:focus rect{fill:var(--card);stroke-width:3}
+
+/* Film link and the three slim collapsibles in the code map. */
+.filmbtn{font-weight:600;text-decoration:none;border:1px solid var(--acc);border-radius:6px;padding:5px 10px}
+.filmlinks{margin:4px 0 8px;font-weight:600}
+details.slim{border:1px solid var(--line);border-radius:8px;padding:4px 10px;margin:0 0 6px}
+details.slim>summary{cursor:pointer;font-weight:600;padding:2px 0}
+details.slim[open]{padding-bottom:8px}
+details.slim td{vertical-align:top}
+
+.gh-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-top:8px}
+.gh-grid>div{min-width:0}
+#codemap h3{font-size:.95rem;margin:8px 0 4px}
+pre.cmd{background:#0b0f10;color:#d7e3e8;font:12.5px/1.5 ui-monospace,Consolas,monospace;padding:8px 10px;border-radius:6px;overflow-x:auto;margin:0}

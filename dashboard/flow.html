@@ -1,0 +1,184 @@
+<!doctype html>
+<!--
+  The data-flow animation.
+
+  In plain words:
+    One real price from our recording travels through the engine, box by box.
+    At every stop a card says what that file does to it, and a tag on the dot
+    names the tool doing the work (WebSocket, SQLite, FastAPI, Chart.js, HMAC).
+    Then an order travels the other way, from the screen to Binance Testnet.
+
+    Open flow.html#etl, #aiml, #viz, #app or #dev to jump to the part the
+    professor's component list talks about.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Data Flow · Centralized Trading Engine</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  .flow-wrap{padding:14px max(16px,env(safe-area-inset-left,0px));display:grid;gap:12px;max-width:980px;margin:0 auto}
+  .map{width:100%;min-width:620px;height:auto;color:var(--muted)}
+  .map rect{fill:var(--bg);stroke:var(--acc);stroke-width:1.5;transition:fill .3s,stroke-width .3s}
+  .map .ext rect{stroke:var(--muted);stroke-dasharray:5 4}
+  .map text{fill:var(--ink);font-size:12px;text-anchor:middle}
+  .map text.f{font-weight:700;font-family:ui-monospace,Consolas,monospace}
+  .map .arrows line{stroke:currentColor;stroke-width:1.5;marker-end:url(#ah)}
+  .map g.on rect{fill:var(--card);stroke-width:4}
+  .map g.lane rect{stroke-width:3;stroke-dasharray:none}
+  #dot{fill:#d4a017;stroke:#7a5a00;stroke-width:1.5}
+  #tag rect{fill:#0b0f10;stroke:none}
+  #tag text{fill:#ffe9a8;font:700 11px ui-monospace,Consolas,monospace;text-anchor:start}
+  .stop{border-left:5px solid var(--acc);background:var(--card);border-radius:8px;padding:10px 14px;min-height:118px}
+  .stop h2{margin:0 0 4px}
+  .stop .tech{display:inline-block;font:700 .8rem ui-monospace,Consolas,monospace;background:#0b0f10;color:#ffe9a8;border-radius:5px;padding:2px 8px;margin:2px 6px 6px 0}
+  .stop code{white-space:pre-wrap;word-break:break-word}
+  .ctrl{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .chips{display:flex;gap:6px;flex-wrap:wrap}
+  .chips button{font-size:.85rem;padding:3px 8px}
+  .chips button[aria-current="step"]{background:var(--acc);color:var(--bg);border-color:var(--acc)}
+  .comp{font-weight:700;letter-spacing:.06em;color:var(--acc)}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>One price, through the whole engine</h1>
+    <p class="sub">Real values from our REPLAY recording · then one order goes the other way</p>
+  </div>
+  <div class="right"><a href="./">← Dashboard</a></div>
+</header>
+
+<div class="flow-wrap">
+  <div class="ctrl">
+    <button type="button" id="play">⏸ Pause</button>
+    <button type="button" id="back">⏮ Back</button>
+    <button type="button" id="next">⏭ Next</button>
+    <span class="muted small">Jump to the professor's parts:</span>
+    <a href="#etl">ETL</a> · <a href="#aiml">AIML</a> · <a href="#viz">VIZ</a> · <a href="#app">APP</a> · <a href="#dev">DEV</a>
+  </div>
+
+  <div class="scroll">
+  <svg class="map" viewBox="0 0 700 340" role="img" aria-label="Engine diagram with a moving dot that carries one price from Binance to the dashboard, then one order back to Binance Testnet">
+    <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="currentColor"/></marker></defs>
+    <g class="arrows">
+      <line x1="140" y1="51" x2="168" y2="51"/><line x1="290" y1="51" x2="318" y2="51"/><line x1="460" y1="51" x2="488" y2="51"/>
+      <line x1="550" y1="80" x2="460" y2="168"/><line x1="520" y1="80" x2="320" y2="168"/>
+      <line x1="390" y1="197" x2="342" y2="197"/><line x1="198" y1="197" x2="152" y2="197"/>
+      <line x1="270" y1="226" x2="270" y2="258"/><line x1="340" y1="215" x2="538" y2="275"/>
+      <line x1="615" y1="258" x2="615" y2="228" stroke-dasharray="5 4"/>
+    </g>
+    <g id="b-binance" class="ext"><rect x="10" y="22" width="130" height="58" rx="8"/><text x="75" y="46" class="f">Binance / replay</text><text x="75" y="66">prices arrive</text></g>
+    <g id="b-sources"><rect x="170" y="22" width="120" height="58" rx="8"/><text x="230" y="46" class="f">sources.py</text><text x="230" y="66">① listen</text></g>
+    <g id="b-clean"><rect x="320" y="22" width="140" height="58" rx="8"/><text x="390" y="46" class="f">clean.py</text><text x="390" y="66">② tidy each note</text></g>
+    <g id="b-store"><rect x="490" y="22" width="120" height="58" rx="8"/><text x="550" y="46" class="f">store.py</text><text x="550" y="66">③ save (SQLite)</text></g>
+    <g id="b-signals"><rect x="390" y="168" width="120" height="58" rx="8"/><text x="450" y="192" class="f">signals.py</text><text x="450" y="212">④ BUY/SELL advice</text></g>
+    <g id="b-api"><rect x="200" y="168" width="140" height="58" rx="8"/><text x="270" y="192" class="f">api.py</text><text x="270" y="212">⑤ the front desk</text></g>
+    <g id="b-dashboard"><rect x="10" y="168" width="140" height="58" rx="8"/><text x="80" y="192" class="f">dashboard/</text><text x="80" y="212">⑥ the screen</text></g>
+    <g id="b-trace"><rect x="200" y="258" width="140" height="58" rx="8"/><text x="270" y="282" class="f">trace.py</text><text x="270" y="302">black-screen log</text></g>
+    <g id="b-exchange"><rect x="540" y="258" width="150" height="58" rx="8"/><text x="615" y="282" class="f">exchange.py</text><text x="615" y="302">⑦ send the order</text></g>
+    <g id="b-testnet" class="ext"><rect x="560" y="168" width="130" height="58" rx="8"/><text x="625" y="192" class="f">Binance Testnet</text><text x="625" y="212">gets the order</text></g>
+    <g id="b-run"><rect x="10" y="258" width="140" height="58" rx="8"/><text x="80" y="282" class="f">run.py + config.py</text><text x="80" y="302">start + settings</text></g>
+    <circle id="dot" r="7" cx="75" cy="80"/>
+    <g id="tag"><rect x="0" y="0" width="80" height="18" rx="4"/><text x="6" y="13">WebSocket</text></g>
+  </svg>
+  </div>
+
+  <div class="chips" id="chips" aria-label="Stops"></div>
+  <section class="stop" id="stop" aria-live="polite"></section>
+  <p class="muted small">Values are from our MOCK replay recording (snapshot.json). In LIVE mode the same path carries real Binance Testnet deals. Orders use toy money.</p>
+</div>
+
+<script>
+// Each stop: which box, the tool doing the work, what happens, and which of the professor's parts it is.
+const STOPS = [
+  { box: "binance",  comp: "etl",  tool: "WebSocket",  title: "Binance sends one deal",
+    text: "A deal arrives as a short note. In REPLAY mode the same notes come from a recorded file.",
+    code: '{"s": "BTCUSDT", "t": 4102400, "p": "67623.78", "q": "0.01"}' },
+  { box: "sources",  comp: "etl",  tool: "asyncio.Queue", title: "sources.py: listen",
+    text: "The note is dropped on a conveyor belt, so listening never waits for saving.",
+    code: "queue.put(message)" },
+  { box: "clean",    comp: "etl",  tool: "Python", title: "clean.py: tidy the note",
+    text: "Short names become clear names and text becomes numbers. One tidy row.",
+    code: "price 67623.78 · qty 0.01 · trade_id 4102400 · source REPLAY" },
+  { box: "store",    comp: "etl",  tool: "SQLite", title: "store.py: save it in the SQLite file",
+    text: "The row goes into the trades table. (symbol, trade_id) is the key, so the same deal is never stored twice.",
+    code: "INSERT INTO trades (symbol, trade_id, price, qty, ts, source)" },
+  { box: "signals",  comp: "aiml", tool: "moving averages", title: "signals.py: the advice",
+    text: "It compares the 5-minute average with the 15-minute average. No fresh crossing this minute, so: HOLD.",
+    code: "short 67,382.82  vs  long 67,441.70  →  HOLD" },
+  { box: "api",      comp: "app",  tool: "FastAPI", title: "api.py: the front desk",
+    text: "The dashboard asks; FastAPI answers in JSON. The same menu, published as openapi.json, lets another team build a plugin.",
+    code: "GET /signals/BTCUSDT  →  200  {\"advice\": \"HOLD\", ...}" },
+  { box: "dashboard", comp: "viz", tool: "Chart.js", title: "The dashboard draws it",
+    text: "The price line, both averages and the advice appear. BUY and SELL are written in words with arrows, never colour alone.",
+    code: "BTCUSDT 67,623.78 USDT · advice HOLD" },
+  { box: "api",      comp: "app",  tool: "FastAPI", title: "You press Place order",
+    text: "The order goes back to the front desk. Every call is also written to the black-screen log (trace.py).",
+    code: "POST /orders  {\"side\": \"BUY\", \"type\": \"MARKET\", \"qty\": 0.001}" },
+  { box: "exchange", comp: "app",  tool: "HMAC-SHA256", title: "exchange.py: sign and send",
+    text: "The order is signed with the secret key so Binance knows it is really ours. In demo mode a pretend exchange fills it.",
+    code: "signature = HMAC-SHA256(secret, query)" },
+  { box: "testnet",  comp: "app",  tool: "Testnet", title: "Binance Testnet fills it (toy money)",
+    text: "The answer comes back and store.py writes the order into the orders table. The dashboard shows a pop-up: FILLED.",
+    code: "INSERT INTO orders (... status 'FILLED', filled_price ...)" }
+];
+const JUMP = { etl: 0, aiml: 4, app: 5, dev: 5, viz: 6, orders: 7 };
+const LANE = { etl: ["sources", "clean", "store"], aiml: ["signals"], viz: ["dashboard"], app: ["api", "exchange", "run"], dev: ["api"] };
+
+const $ = (id) => document.getElementById(id);
+const centre = (name) => { const r = $("b-" + name).querySelector("rect");
+  return [ +r.getAttribute("x") + +r.getAttribute("width") / 2, +r.getAttribute("y") + +r.getAttribute("height") ]; };  // the dot rides on the bottom edge, so labels stay readable
+const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+let at = 0, playing = !reduced, timer = null, lane = null;
+
+STOPS.forEach((s, i) => {
+  const b = document.createElement("button"); b.type = "button"; b.textContent = (i + 1) + ". " + s.title.split(":")[0];
+  b.addEventListener("click", () => { pause(); go(i); }); $("chips").appendChild(b);
+});
+
+function moveDot(from, to, done) {
+  const [x0, y0] = centre(from), [x1, y1] = centre(to);
+  if (reduced || from === to) { place(x1, y1); return done(); }
+  const t0 = performance.now(), ms = 900;
+  (function step(now) {
+    const k = Math.min(1, (now - t0) / ms), e = k < .5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+    place(x0 + (x1 - x0) * e, y0 + (y1 - y0) * e);
+    k < 1 ? requestAnimationFrame(step) : done();
+  })(t0);
+}
+function place(x, y) {
+  $("dot").setAttribute("cx", x); $("dot").setAttribute("cy", y);
+  $("tag").setAttribute("transform", `translate(${Math.min(x + 12, 600)},${y + 3})`);
+}
+function show(i) {
+  const s = STOPS[i];
+  document.querySelectorAll(".map g[id^='b-']").forEach(g => g.classList.toggle("on", g.id === "b-" + s.box));
+  const t = $("tag").querySelector("text"); t.textContent = s.tool;
+  $("tag").querySelector("rect").setAttribute("width", 12 + s.tool.length * 7);
+  $("stop").innerHTML = `<h2>${i + 1}. ${s.title}</h2><span class="comp">${s.comp.toUpperCase()}</span> <span class="tech">${s.tool}</span><p>${s.text}</p><code>${s.code.replace(/</g, "&lt;")}</code>`;
+  [...$("chips").children].forEach((b, k) => { if (k === i) b.setAttribute("aria-current", "step"); else b.removeAttribute("aria-current"); });
+}
+function go(i) {
+  const from = STOPS[at].box; at = (i + STOPS.length) % STOPS.length;
+  moveDot(from, STOPS[at].box, () => { show(at); if (playing) timer = setTimeout(() => go(at + 1), 3200); });
+}
+function pause() { playing = false; clearTimeout(timer); $("play").textContent = "▶ Play"; }
+$("play").addEventListener("click", () => { if (playing) pause(); else { playing = true; $("play").textContent = "⏸ Pause"; go(at + 1); } });
+$("next").addEventListener("click", () => { pause(); go(at + 1); });
+$("back").addEventListener("click", () => { pause(); go(at - 1); });
+
+function fromHash() {
+  const h = location.hash.slice(1);
+  document.querySelectorAll(".map g.lane").forEach(g => g.classList.remove("lane"));
+  if (LANE[h]) LANE[h].forEach(n => $("b-" + n).classList.add("lane"));
+  if (h in JUMP) { pause(); go(JUMP[h]); }
+}
+window.addEventListener("hashchange", fromHash);
+if (!playing) $("play").textContent = "▶ Play";
+show(0); place(...centre("binance"));
+if (location.hash) fromHash(); else if (playing) timer = setTimeout(() => go(1), 2500);
+</script>
+</body>
+</html>
