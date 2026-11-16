@@ -1,0 +1,7 @@
+# What the engine needs. Install with:  pip install -r requirements.txt
+fastapi==0.115.6        # the web API and its /docs menu
+uvicorn[standard]==0.32.1  # the server that runs the API
+websockets==14.1        # the open phone line to Binance (LIVE mode)
+httpx==0.28.1           # HTTPS calls for signed orders; also used by tests
+python-dotenv==1.0.1    # reads the hidden .env file
+pytest==8.3.4           # runs the tests
