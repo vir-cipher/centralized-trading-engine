@@ -139,6 +139,7 @@ $("theme").addEventListener("click", () => setTheme(document.documentElement.get
   try { const r = await fetch("/health"); if (!r.ok) throw 0; await r.json(); }
   catch (e) {
     try { SNAPSHOT = await (await fetch("snapshot.json")).json(); } catch (e2) { SNAPSHOT = null; }
+    if (SNAPSHOT) { $("docs-link").href = "api.html"; $("docs-link").textContent = "static copy of the API menu"; }
   }
   refresh();
   if (!SNAPSHOT) setInterval(refresh, 3000);
